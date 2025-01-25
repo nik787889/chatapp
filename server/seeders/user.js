@@ -114,9 +114,9 @@ const createMessages = async (numMessages) => {
 
         const messagesPromise = []
 
-        for (let i = 0; i < numMessages; i++){
-            const randUser = users[Math.floor(Math.random()*users.length)]
-            const randChat = chats[Math.floor(Math.random()*chats.length)]
+        for (let i = 0; i < numMessages; i++) {
+            const randUser = users[Math.floor(Math.random() * users.length)]
+            const randChat = chats[Math.floor(Math.random() * chats.length)]
 
             messagesPromise.push(Message.create({
                 chat: randChat,
@@ -128,7 +128,7 @@ const createMessages = async (numMessages) => {
         await Promise.all(messagesPromise)
         console.log("Messages created successfully");
         process.exit()
-        
+
     } catch (error) {
         console.error(error)
         process.exit(1)
@@ -142,8 +142,8 @@ const createMessagesInAChat = async (chatId, numMessages) => {
 
         const messagesPromise = []
 
-        for (let i = 0; i < numMessages; i++){
-            const randUser = users[Math.floor(Math.random()*users.length)]
+        for (let i = 0; i < numMessages; i++) {
+            const randUser = users[Math.floor(Math.random() * users.length)]
 
             messagesPromise.push(Message.create({
                 chat: chatId,
@@ -155,7 +155,7 @@ const createMessagesInAChat = async (chatId, numMessages) => {
         await Promise.all(messagesPromise)
         console.log("Messages created successfully");
         process.exit()
-        
+
     } catch (error) {
         console.error(error)
         process.exit(1)

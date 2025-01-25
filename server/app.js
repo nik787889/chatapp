@@ -38,6 +38,8 @@ const app = express()
 const server = createServer(app)
 const io = new Server(server, { cors: corsOptions })
 
+app.set("io", io)
+
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors(corsOptions))
@@ -76,6 +78,9 @@ io.on('connection', (socket) => {
       sender: { _id: user._id, name: user.name },
       createdAt: new Date().toISOString()
     }
+
+    console.log("emitting message for real time:", msgForRealTime);
+
 
     const msgForDB = {
       content: message,

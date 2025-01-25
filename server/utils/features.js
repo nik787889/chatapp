@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from 'cloudinary';
 import { v4 as uuid } from 'uuid';
-import { getBase64 } from "../lib/helper.js";
+import { getBase64, getSockets } from "../lib/helper.js";
 
 
 
@@ -27,15 +27,15 @@ const sendToken = (res, user, code, message) => {
 
     return res.status(code)
         .cookie("user-token", token, cookieOptions)
-        .json({ success: true, message, token})
+        .json({ success: true, message, token })
 }
-
 
 
 const emitEvent = (req, event, users, data) => {
-    console.log("Emitting Events ::", event);
+    const io = req.app.get("io")
+    const usersSocket = getSockets(users)
+    io.to(usersSocket).emit(event, data)
 }
-
 
 
 const uploadFilesToCloudinary = async (files = []) => {
@@ -58,6 +58,7 @@ const uploadFilesToCloudinary = async (files = []) => {
         throw new Error("Error uploading files to cloudinary", error)
     }
 }
+
 
 const deleteFilesFromCloudinary = async (public_ids) => {
 

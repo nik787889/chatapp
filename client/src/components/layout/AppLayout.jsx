@@ -1,5 +1,5 @@
 // //
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import Header from './Header'
@@ -10,8 +10,10 @@ import { sampleChats } from '../../constants/sampleData'
 import Profile from '../specific/Profile'
 import { useMyChatsQuery } from '../../redux/api/api'
 import { setIsMobile } from '../../redux/reducers/misc'
-import { useErrors } from '../../hooks/hook'
+import { useErrors, useSocketEvents } from '../../hooks/hook'
 import { getSocket } from '../../socket'
+import { NEW_MESSAGE_ALERT, NEW_REQUEST } from '../../constants/events'
+import { incrementNotification } from '../../redux/reducers/chat'
 
 const AppLayout = () => (WrappedComp) => {
     return (props) => {
@@ -23,8 +25,7 @@ const AppLayout = () => (WrappedComp) => {
         const chatId = params.chatId
 
         const socket = getSocket()
-        console.log(socket);
-
+        // console.log(socket);
 
 
         const { isLoading, data, isError, error, refetch } = useMyChatsQuery('')
@@ -37,6 +38,20 @@ const AppLayout = () => (WrappedComp) => {
         }
 
         const handleMobileClose = () => dispatch(setIsMobile(false))
+
+        const newMessageAlertHandler = useCallback(() => {
+
+        }, [])
+
+        const newRequestHandler = useCallback(() => {
+            dispatch(incrementNotification())
+        }, [dispatch])
+
+        const eventHandlers = {
+            [NEW_MESSAGE_ALERT]: newMessageAlertHandler,
+            [NEW_REQUEST]: newRequestHandler,
+        }
+        useSocketEvents(socket, eventHandlers)
 
         return (
             <>
@@ -54,7 +69,7 @@ const AppLayout = () => (WrappedComp) => {
                         {isLoading ? (<Skeleton />) : <ChatList chats={data?.chat} chatId={chatId} handleDeleteChat={handleDeleteChat} />}
                     </Grid>
                     <Grid item xs={12} sm={8} md={5} lg={6} height={'100%'}>
-                        <WrappedComp {...props} />
+                        <WrappedComp {...props} chatId={chatId} user={user} />
                     </Grid>
                     <Grid item md={4} lg={3} height={'100%'} sx={{ display: { xs: "none", md: "block" }, padding: "2rem", bgcolor: "rgba(0,0,0,0.85)", }}>
                         <Profile user={user} />
