@@ -13,7 +13,7 @@ import { setIsMobile } from '../../redux/reducers/misc'
 import { useErrors, useSocketEvents } from '../../hooks/hook'
 import { getSocket } from '../../socket'
 import { NEW_MESSAGE_ALERT, NEW_REQUEST } from '../../constants/events'
-import { incrementNotification } from '../../redux/reducers/chat'
+import { incrementNotification, setNewMessagesAlert } from '../../redux/reducers/chat'
 
 const AppLayout = () => (WrappedComp) => {
     return (props) => {
@@ -21,6 +21,8 @@ const AppLayout = () => (WrappedComp) => {
         const dispatch = useDispatch()
         const { isMobile } = useSelector((state) => state.misc)
         const { user } = useSelector((state) => state.auth)
+        const { newMessagesAlert } = useSelector((state) => state.chat)
+
         const params = useParams()
         const chatId = params.chatId
 
@@ -39,9 +41,10 @@ const AppLayout = () => (WrappedComp) => {
 
         const handleMobileClose = () => dispatch(setIsMobile(false))
 
-        const newMessageAlertHandler = useCallback(() => {
-
-        }, [])
+        const newMessageAlertHandler = useCallback((data) => {
+            if (data.chatId === chatId) return
+            dispatch(setNewMessagesAlert(data))
+        }, [chatId])
 
         const newRequestHandler = useCallback(() => {
             dispatch(incrementNotification())
@@ -60,13 +63,13 @@ const AppLayout = () => (WrappedComp) => {
                 {
                     isLoading ? <Skeleton /> : (
                         <Drawer open={isMobile} onClose={handleMobileClose}>
-                            <ChatList w="70vw" chats={data?.chat} chatId={chatId} handleDeleteChat={handleDeleteChat} />
+                            <ChatList w="70vw" chats={data?.chat} chatId={chatId} handleDeleteChat={handleDeleteChat} newMessagesAlert={newMessagesAlert} />
                         </Drawer>
                     )
                 }
                 <Grid container height={'calc(100vh - 4rem)'}>
                     <Grid item sm={4} md={3} height={'100%'} sx={{ display: { xs: "none", sm: "block" }, }}>
-                        {isLoading ? (<Skeleton />) : <ChatList chats={data?.chat} chatId={chatId} handleDeleteChat={handleDeleteChat} />}
+                        {isLoading ? (<Skeleton />) : <ChatList chats={data?.chat} chatId={chatId} handleDeleteChat={handleDeleteChat} newMessagesAlert={newMessagesAlert} />}
                     </Grid>
                     <Grid item xs={12} sm={8} md={5} lg={6} height={'100%'}>
                         <WrappedComp {...props} chatId={chatId} user={user} />

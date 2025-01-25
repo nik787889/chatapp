@@ -18,12 +18,20 @@ const chatSlice = createSlice({
         resetNotification: (state) => {
             state.notificationCount = 0
         },
-        setNewMessagesAlert: (state) => {
+        setNewMessagesAlert: (state, action) => {
             const index = state.newMessagesAlert.findIndex((item) => item.chatId === action.payload.chatId)
+            if (index !== -1) {
+                state.newMessagesAlert[index].count += 1
+            } else {
+                state.newMessagesAlert.push({ chatId: action.payload.chatId, count: 1 })
+            }
+        },
+        removeNewMessagesAlert: (state, action) => {
+            state.newMessagesAlert = state.newMessagesAlert.filter((item) => item.chatId !== action.payload)
         },
     },
 
 })
 
 export default chatSlice;
-export const { incrementNotification, resetNotification, setNewMessagesAlert } = chatSlice.actions;
+export const { incrementNotification, resetNotification, setNewMessagesAlert, removeNewMessagesAlert } = chatSlice.actions;
