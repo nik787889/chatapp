@@ -8,22 +8,29 @@ import FileMenu from '../components/dialogs/FileMenu'
 import { sampleMessage } from '../constants/sampleData'
 import MessageComp from '../components/shared/MessageComp'
 import { getSocket } from '../socket'
-import { NEW_MESSAGE } from "../constants/events"
+import { NEW_MESSAGE, START_TYPING, STOP_TYPING } from "../constants/events"
 import { useChatDetailsQuery, useGetMessagesQuery } from '../redux/api/api'
 import { useErrors, useSocketEvents } from '../hooks/hook'
 import { useInfiniteScrollTop } from '6pp'
 import { useDispatch } from 'react-redux'
 import { setIsFileMenu } from '../redux/reducers/misc'
 import { removeNewMessagesAlert } from '../redux/reducers/chat'
+import { TypingLoader } from '../components/layout/Loaders'
 
 
 const Chat = ({ chatId, user }) => {
 
+  const bottomRef = useRef(null)
 
   const [message, setMessage] = useState("")
   const [messages, setMessages] = useState([])
   const [page, setPage] = useState(1)
   const [fileMenuAnchor, setFileMenuAnchor] = useState(null)
+
+  const [IamTyping, setIamTyping] = useState(false)
+  const [userTyping, setUserTyping] = useState(false)
+  const typingTimeout = useRef(null)
+
   const dispatch = useDispatch()
 
   const containerRef = useRef(null)
@@ -47,6 +54,21 @@ const Chat = ({ chatId, user }) => {
     { isError: oldMessagesChunk.isError, error: oldMessagesChunk.error },
   ]
 
+  const messageOnChange = (e) => {
+    setMessage(e.target.value)
+    if (!IamTyping) {
+      socket.emit(START_TYPING, { members, chatId })
+      setIamTyping(true)
+    }
+
+    if (typingTimeout.current) clearTimeout(typingTimeout.current)
+
+    typingTimeout.current = setTimeout(() => {
+      socket.emit(STOP_TYPING, { members, chatId })
+      setIamTyping(false)
+    }, 500);
+  }
+
   const handleFileOpen = (e) => {
     dispatch(setIsFileMenu(true))
     setFileMenuAnchor(e.currentTarget)
@@ -61,9 +83,7 @@ const Chat = ({ chatId, user }) => {
   }
 
   useEffect(() => {
-
     dispatch(removeNewMessagesAlert(chatId))
-
     return () => {
       setMessage([])
       setMessages([])
@@ -72,7 +92,12 @@ const Chat = ({ chatId, user }) => {
     }
   }, [chatId])
 
-  const newMessagesHandler = useCallback((data) => {
+  useEffect(() => {
+    if (bottomRef.current)
+      bottomRef.current.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
+
+  const newMessagesListener = useCallback((data) => {
     if (data.chatId !== chatId) return
     setMessages((prev) => {
       const updatedMessages = [...prev, data.message];
@@ -80,8 +105,22 @@ const Chat = ({ chatId, user }) => {
     });
   }, [chatId]);
 
+  const startTypingListener = useCallback((data) => {
+    if (data.chatId !== chatId) return
+    setUserTyping(true)
+  }, [chatId]);
 
-  const eventHandler = { [NEW_MESSAGE]: newMessagesHandler }
+  const stopTypingListener = useCallback((data) => {
+    if (data.chatId !== chatId) return
+    setUserTyping(false)
+  }, [chatId]);
+
+
+  const eventHandler = {
+    [NEW_MESSAGE]: newMessagesListener,
+    [START_TYPING]: startTypingListener,
+    [STOP_TYPING]: stopTypingListener,
+  }
   useSocketEvents(socket, eventHandler)
 
   useErrors(errors)
@@ -106,6 +145,10 @@ const Chat = ({ chatId, user }) => {
           <MessageComp key={i._id} message={i} user={user} />
         ))}
 
+        {userTyping && <TypingLoader />}
+
+        <div ref={bottomRef} />
+
       </Stack>
 
       <form style={{ height: "10%" }} onSubmit={submitHandler}>
@@ -115,7 +158,7 @@ const Chat = ({ chatId, user }) => {
             <AttachFileIcon />
           </IconButton>
 
-          <InputBox placeholder='Message' value={message} onChange={(e) => setMessage(e.target.value)} />
+          <InputBox placeholder='Message' value={message} onChange={messageOnChange} />
 
           <IconButton
             type='submit'

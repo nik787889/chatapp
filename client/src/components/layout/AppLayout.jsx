@@ -14,6 +14,7 @@ import { useErrors, useSocketEvents } from '../../hooks/hook'
 import { getSocket } from '../../socket'
 import { NEW_MESSAGE_ALERT, NEW_REQUEST } from '../../constants/events'
 import { incrementNotification, setNewMessagesAlert } from '../../redux/reducers/chat'
+import { getOrSaveFromStorage } from '../../lib/features'
 
 const AppLayout = () => (WrappedComp) => {
     return (props) => {
@@ -33,6 +34,10 @@ const AppLayout = () => (WrappedComp) => {
         const { isLoading, data, isError, error, refetch } = useMyChatsQuery('')
 
         useErrors([{ isError, error }])
+
+        useEffect(() => {
+            getOrSaveFromStorage({ key: NEW_MESSAGE_ALERT, value: newMessagesAlert })
+        }, [newMessagesAlert])
 
         const handleDeleteChat = (e, _id, groupChat) => {
             e.preventDefault()

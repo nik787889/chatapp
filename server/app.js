@@ -13,7 +13,7 @@ import adminRoute from "./routes/admin.js"
 import { connectDB } from "./utils/features.js"
 import { errorMiddleware } from "./middlewares/error.js"
 import { createGroupChat, createMessages, createMessagesInAChat, createSingleChat, createUser } from "./seeders/user.js"
-import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from './constants/events.js'
+import { NEW_MESSAGE, NEW_MESSAGE_ALERT, START_TYPING, STOP_TYPING } from './constants/events.js'
 import { getSockets } from './lib/helper.js'
 import { Message } from './models/message.js'
 import { corsOptions } from './constants/config.js'
@@ -98,6 +98,16 @@ io.on('connection', (socket) => {
     } catch (error) {
       console.log("error:::", error);
     }
+  })
+
+  socket.on(START_TYPING, ({ members, chatId }) => {
+    const membersSockets = getSockets(members)
+    socket.to(membersSockets).emit(START_TYPING, { chatId })
+  })
+
+  socket.on(STOP_TYPING, ({ members, chatId }) => {
+    const membersSockets = getSockets(members)
+    socket.to(membersSockets).emit(STOP_TYPING, { chatId })
   })
 
   socket.on('disconnect', () => {
