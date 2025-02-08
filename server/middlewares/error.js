@@ -55,7 +55,7 @@ const errorMiddleware = (err, req, res, next) => {
     // Return the error response, with detailed error in development mode
     return res.status(err.statusCode).json({
         success: false,
-        message: process.env.NODE_ENV === "development" ? err : err.message,  // Show full error in development
+        message: process.env.NODE_ENV === "development" ? err : err.message,
     });
 };
 

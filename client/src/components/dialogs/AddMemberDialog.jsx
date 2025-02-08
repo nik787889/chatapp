@@ -1,38 +1,50 @@
 // //
-import React, {useState} from 'react'
-import { Button, Dialog, DialogTitle, Stack, Typography } from '@mui/material'
-import { sampleUsers } from '../../constants/sampleData'
+import React, { useState } from 'react'
+import { Button, Dialog, DialogTitle, Skeleton, Stack, Typography } from '@mui/material'
 import UserItem from '../shared/UserItem'
+import { useAsyncMutation, useErrors } from '../../hooks/hook'
+import { useAddGroupMembersMutation, useAvailableFriendsQuery } from '../../redux/api/api'
+import { useDispatch, useSelector } from 'react-redux'
+import { setIsAddMember } from '../../redux/reducers/misc'
 
-const AddMemberDialog = ({ addMember, isLoadingAddMember, chatId, open, handleClose, }) => {
+const AddMemberDialog = ({ chatId }) => {
 
-    const [members, setMembers] = useState(sampleUsers)
+    const dispatch = useDispatch()
+    const { isAddMember } = useSelector(state => state.misc)
+
+    const [addMembers, isLoadingAddMembers] = useAsyncMutation(useAddGroupMembersMutation)
+    const { isLoading, data, isError, error } = useAvailableFriendsQuery(chatId)
+    console.log("data :::>>", data?.friends);
+
     const [selectedMembers, setselectedMembers] = useState([])
-    
+
     const selectMemberHandler = (id) => {
-      setselectedMembers((prev) => prev.includes(id) ? prev.filter((currEle) => currEle !== id) : [...prev, id])
+        setselectedMembers((prev) => prev.includes(id) ? prev.filter((currEle) => currEle !== id) : [...prev, id])
     }
 
 
     const closeHandler = () => {
-      setselectedMembers([])
-      setMembers([])
-      handleClose();
+        // setselectedMembers([])
+        // setMembers([])
+        // handleClose();
+        dispatch(setIsAddMember(false))
     }
 
     const addMemberSubmitHandler = () => {
-      closeHandler()
+        addMembers("Adding Members", { chatId, members: selectedMembers })
+        closeHandler()
     }
 
+    useErrors([{ isError, error }])
+
     return (
-        // <Dialog onClose={closeHandler}>
-        <Dialog onClose={closeHandler} open={open}>
-            <Stack open>
+        <Dialog open={isAddMember} onClose={closeHandler}>
+            <Stack width={"20rem"} p={"2rem"} spacing={"2rem"}>
                 <DialogTitle textAlign={"center"}>Add Member</DialogTitle>
 
-                <Stack width={"20rem"} p={"2rem"} spacing={"1rem"}>
-                    {members.length > 0 ? (members.map((i) => (
-                        <UserItem key={i.id} user={i} handler={selectMemberHandler} isAdded={selectedMembers.includes(i._id)}/>
+                <Stack spacing={"1rem"}>
+                    {isLoading ? <Skeleton /> : data?.friends.length > 0 ? (data?.friends.map((i) => (
+                        <UserItem key={i._id} user={i} handler={selectMemberHandler} isAdded={selectedMembers.includes(i._id)} />
                     ))
                     ) : (
                         <Typography textAlign={"center"}>No Friends</Typography>
@@ -40,8 +52,8 @@ const AddMemberDialog = ({ addMember, isLoadingAddMember, chatId, open, handleCl
                 </Stack>
 
                 <Stack direction={"row"} alignItems={"center"} justifyContent={"space-evenly"}>
-                <Button onClick={closeHandler} color='error'>Cancel</Button>
-                <Button onClick={addMemberSubmitHandler} variant='contained' disabled={isLoadingAddMember}>Submit Changes</Button>
+                    <Button onClick={closeHandler} color='error'>Cancel</Button>
+                    <Button onClick={addMemberSubmitHandler} variant='contained' disabled={isLoadingAddMembers}>Submit Changes</Button>
                 </Stack>
 
 

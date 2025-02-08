@@ -8,7 +8,7 @@ import FileMenu from '../components/dialogs/FileMenu'
 import { sampleMessage } from '../constants/sampleData'
 import MessageComp from '../components/shared/MessageComp'
 import { getSocket } from '../socket'
-import { NEW_MESSAGE, START_TYPING, STOP_TYPING } from "../constants/events"
+import { ALERT, NEW_MESSAGE, START_TYPING, STOP_TYPING } from "../constants/events"
 import { useChatDetailsQuery, useGetMessagesQuery } from '../redux/api/api'
 import { useErrors, useSocketEvents } from '../hooks/hook'
 import { useInfiniteScrollTop } from '6pp'
@@ -16,10 +16,12 @@ import { useDispatch } from 'react-redux'
 import { setIsFileMenu } from '../redux/reducers/misc'
 import { removeNewMessagesAlert } from '../redux/reducers/chat'
 import { TypingLoader } from '../components/layout/Loaders'
+import { useNavigate } from 'react-router-dom'
 
 
 const Chat = ({ chatId, user }) => {
 
+  const dispatch = useDispatch()
   const bottomRef = useRef(null)
 
   const [message, setMessage] = useState("")
@@ -31,7 +33,7 @@ const Chat = ({ chatId, user }) => {
   const [userTyping, setUserTyping] = useState(false)
   const typingTimeout = useRef(null)
 
-  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const containerRef = useRef(null)
   const socket = getSocket()
@@ -97,6 +99,10 @@ const Chat = ({ chatId, user }) => {
       bottomRef.current.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
+  useEffect(() => {
+    if (!chatDetails.data?.chat) return navigate('/')
+  }, [chatDetails.data])
+
   const newMessagesListener = useCallback((data) => {
     if (data.chatId !== chatId) return
     setMessages((prev) => {
@@ -115,8 +121,22 @@ const Chat = ({ chatId, user }) => {
     setUserTyping(false)
   }, [chatId]);
 
+  const alertListener = useCallback((content) => {
+    const messageForAlert = {
+      content,
+      sender: {
+        _id: "gjhfjgugygyjhgiu",
+        name: "Admin"
+      },
+      chat: chatId,
+      createdAt: new Date().toISOString(),
+    }
+    setMessages((pre) => [...pre, messageForAlert])
+  }, [chatId]);
+
 
   const eventHandler = {
+    [ALERT]: alertListener,
     [NEW_MESSAGE]: newMessagesListener,
     [START_TYPING]: startTypingListener,
     [STOP_TYPING]: stopTypingListener,

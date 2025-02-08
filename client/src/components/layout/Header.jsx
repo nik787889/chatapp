@@ -8,7 +8,7 @@ import { orange } from '../../constants/color'
 import { server } from '../../constants/config'
 import toast from 'react-hot-toast'
 import { userNotExists } from '../../redux/reducers/auth'
-import { setIsMobile, setIsSearch, setIsNotification } from '../../redux/reducers/misc'
+import { setIsMobile, setIsSearch, setIsNotification, setIsNewGroup } from '../../redux/reducers/misc'
 import { resetNotification } from '../../redux/reducers/chat'
 
 
@@ -19,11 +19,9 @@ const NewGroupDialog = lazy(() => import('../specific/NewGroup'))
 const Header = () => {
 
     const dispatch = useDispatch()
-    const { isSearch, isNotification } = useSelector(state => state.misc)
+    const { isSearch, isNotification, isNewGroup } = useSelector(state => state.misc)
     const { notificationCount } = useSelector(state => state.chat)
 
-    // const [isSearch, setIsSearch] = useState(false)
-    const [isNewGroup, setIsNewGroup] = useState(false)
     const navigate = useNavigate()
 
 
@@ -39,7 +37,7 @@ const Header = () => {
     }
 
     const openNewGroup = () => {
-        setIsNewGroup((prev) => !prev)
+        dispatch(setIsNewGroup(true))
     }
 
     const navigateToGroup = () => {
