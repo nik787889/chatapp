@@ -5,23 +5,19 @@ import { lightBlue } from '../../constants/color';
 import moment from 'moment';
 import { fileFormate } from '../../lib/features';
 import RenderAttachment from './RenderAttachment';
+import { motion } from 'framer-motion'
 
 const MessageComp = ({ message, user }) => {
 
     const { sender, content, attachments = [], createdAt } = message;
-    // const sameSender = sender?._id === user?._id;
     const sameSender = sender?._id === user?.data?._id;
     const timeAgo = moment(createdAt).fromNow()
 
-    // console.log("attachments :", attachments);
-    // console.log("sameSender:::", sameSender);
-    // console.log("user:::", user);
-    // console.log("sender._id:::", sender._id);
-    // console.log("user._id:::", user?.data?._id);
-
-
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0, x: "-100%" }}
+            whileInView={{ opacity: 1, x: 0 }}
+
             style={{
                 alignSelf: sameSender ? "flex-end" : "flex-start",
                 width: "fit-content",
@@ -51,7 +47,7 @@ const MessageComp = ({ message, user }) => {
 
             {<Typography variant='caption' color='text.secondary'>{timeAgo}</Typography>}
 
-        </div>
+        </motion.div>
     )
 }
 

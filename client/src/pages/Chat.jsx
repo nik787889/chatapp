@@ -99,9 +99,13 @@ const Chat = ({ chatId, user }) => {
       bottomRef.current.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
+  // useEffect(() => {
+  //   if (!chatDetails.data?.chat) return navigate('/')
+  // }, [chatDetails.data])
+
   useEffect(() => {
-    if (!chatDetails.data?.chat) return navigate('/')
-  }, [chatDetails.data])
+    if (chatDetails.isError) return navigate('/')
+  }, [chatDetails.isError])
 
   const newMessagesListener = useCallback((data) => {
     if (data.chatId !== chatId) return
@@ -121,9 +125,10 @@ const Chat = ({ chatId, user }) => {
     setUserTyping(false)
   }, [chatId]);
 
-  const alertListener = useCallback((content) => {
+  const alertListener = useCallback((data) => {
+    if (data.chatId !== chatId) return
     const messageForAlert = {
-      content,
+      content: data.message,
       sender: {
         _id: "gjhfjgugygyjhgiu",
         name: "Admin"

@@ -6,7 +6,6 @@ import Header from './Header'
 import Title from '../shared/Title'
 import { Drawer, Grid, Skeleton } from '@mui/material'
 import ChatList from '../specific/ChatList'
-import { sampleChats } from '../../constants/sampleData'
 import Profile from '../specific/Profile'
 import { useMyChatsQuery } from '../../redux/api/api'
 import { setIsDeleteMenu, setIsMobile, setSelectedDeleteChat } from '../../redux/reducers/misc'
@@ -24,6 +23,9 @@ const AppLayout = () => (WrappedComp) => {
         const { isMobile } = useSelector((state) => state.misc)
         const { user } = useSelector((state) => state.auth)
         const { newMessagesAlert } = useSelector((state) => state.chat)
+
+        console.log("user:::>>>>", user);
+
 
         const navigate = useNavigate()
         const params = useParams()

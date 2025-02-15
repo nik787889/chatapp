@@ -17,6 +17,7 @@ const Login = () => {
     const dispatch = useDispatch()
 
     const [isLogin, setIsLogin] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     const toggleLogin = () => setIsLogin((prev) => !prev)
 
@@ -29,6 +30,8 @@ const Login = () => {
 
     const handleSignIn = async (e) => {
         e.preventDefault()
+        const toastId = toast.loading("Loggin In...")
+        setIsLoading(true)
 
         const userData = { username: username.value, password: password.value }
 
@@ -39,15 +42,21 @@ const Login = () => {
 
         try {
             const { data } = await axios.post(`${server}/api/v1/user/login`, userData, config);
-            dispatch(userExists(true))
-            toast.success(data.message)
+            // console.log("data:::>>>", data.user);
+
+            dispatch(userExists(data.user))
+            toast.success(data.message, { id: toastId })
         } catch (error) {
-            toast.error(error?.response?.data?.message || "Something Went Wrong")
+            toast.error(error?.response?.data?.message || "Something Went Wrong", { id: toastId })
+        } finally {
+            setIsLoading(false)
         }
     }
 
     const handleSignUp = async (e) => {
         e.preventDefault()
+        const toastId = toast.loading("Signin Up...")
+        setIsLoading(true)
 
         const formData = new FormData()
         formData.append('avatar', avatar.file)
@@ -63,10 +72,13 @@ const Login = () => {
 
         try {
             const { data } = await axios.post(`${server}/api/v1/user/new`, formData, config)
-            dispatch(userExists(true))
-            toast.success(data.message)
+            // console.log("data:::>>>", data.user);
+            dispatch(userExists(data.user))
+            toast.success(data.message, { id: toastId })
         } catch (error) {
-            toast.error(error?.response?.data?.message || "Something Went Wrong")
+            toast.error(error?.response?.data?.message || "Something Went Wrong", { id: toastId })
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -88,7 +100,7 @@ const Login = () => {
                             <TextField fullWidth label="Password" margin='normal' variant='outlined' type='password' value={password.value} onChange={password.changeHandler} />
                             {password.error && <Typography color='error' variant='caption'>{password.error}</Typography>}
 
-                            <Button fullWidth sx={{ marginTop: "1rem" }} variant='contained' color='primary' type='submit'>Login</Button>
+                            <Button fullWidth sx={{ marginTop: "1rem" }} variant='contained' color='primary' type='submit' disabled={isLoading}>Login</Button>
                             <Typography textAlign={'center'} m={'1rem'}>or</Typography>
                             <Button sx={{ marginTop: "1rem" }} onClick={toggleLogin}>don't have an account</Button>
                         </form>
@@ -119,7 +131,7 @@ const Login = () => {
                             <TextField fullWidth label="Password" margin='normal' variant='outlined' type='password' value={password.value} onChange={password.changeHandler} />
                             {password.error && <Typography color='error' variant='caption'>{password.error}</Typography>}
 
-                            <Button fullWidth sx={{ marginTop: "1rem" }} variant='contained' color='primary' type='submit'>Sign up</Button>
+                            <Button fullWidth sx={{ marginTop: "1rem" }} variant='contained' color='primary' type='submit' disabled={isLoading}>Sign up</Button>
                             <Typography textAlign={'center'} m={'1rem'}>or</Typography>
                             <Button sx={{ marginTop: "1rem" }} onClick={toggleLogin}>already signup</Button>
                         </form>

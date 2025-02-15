@@ -155,7 +155,7 @@ const removeMembers = TryCatch(async (req, res, next) => {
     chat.members = chat.members.filter((m) => m.toString() !== userId.toString())
     await chat.save()
 
-    emitEvent(req, ALERT, chat.members, `${userThatWillBeRemoved} ko kutte ki maut mar ke bhaga diya`)
+    emitEvent(req, ALERT, chat.members, { message: `${userThatWillBeRemoved} ko kutte ki maut mar ke bhaga diya`, chatId })
 
     emitEvent(req, REFETCH_CHATS, allChatMembers)
 
@@ -187,7 +187,7 @@ const leaveGroup = TryCatch(async (req, res, next) => {
 
     if (!user) return next(new ErrorHandler("User not found", 404))
 
-    emitEvent(req, ALERT, chat.members, `${user.name} dar ke bhag gaya`)
+    emitEvent(req, ALERT, chat.members, { message: `${user.name} dar ke bhag gaya`, chatId })
 
     return res.status(200).json({ success: true, message: "Leave Group successfully !" })
 })

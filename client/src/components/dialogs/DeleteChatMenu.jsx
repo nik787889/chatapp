@@ -25,12 +25,12 @@ const DeleteChatMenu = ({ dispatch, deleteMenuAnchor }) => {
 
     const deleteChatHandler = () => {
         closeHandler()
-        leaveGroup("Deleting Chat", selectedDeleteChat.chatId)
+        deleteChat("Deleting Chat", selectedDeleteChat.chatId)
     }
 
     const leaveGroupHandler = () => {
         closeHandler()
-        deleteChat("Leaving Group", selectedDeleteChat.chatId)
+        leaveGroup("Leaving Group", selectedDeleteChat.chatId)
     }
 
     useEffect(() => {
