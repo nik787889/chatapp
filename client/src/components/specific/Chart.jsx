@@ -14,32 +14,32 @@ const labels = getLast7Days();
 const LineChartOptions = {
     responsive: true,
     plugins: {
-        Legend: {display: false,},
-        title: {display: false,},
+        Legend: { display: false, },
+        title: { display: false, },
     },
-    scales:{
-        x: { grid: { display: false,},},
-        y: { beginAtZero: true, grid: { display: false,},},
+    scales: {
+        x: { grid: { display: false, }, },
+        y: { beginAtZero: true, grid: { display: false, }, },
     }
 }
 
-const LineChart = ({value}) => {
+const LineChart = ({ value }) => {
 
-  const data = {
-    labels: labels,
-    datasets: [
-        {
-            data: value,
-            label: "Revenue",
-            fill: true,
-            backgroundColor: "rgba(75, 192, 192, 0.2)",
-            borderColor: "rgba(75, 192, 192, 1)",
-        }
-    ]
-  }
+    const data = {
+        labels: labels,
+        datasets: [
+            {
+                data: value,
+                label: "Messages",
+                fill: true,
+                backgroundColor: "rgba(75, 192, 192, 0.2)",
+                borderColor: "rgba(75, 192, 192, 1)",
+            }
+        ]
+    }
 
-  return  <Line data={data} options={LineChartOptions}/>
-  
+    return <Line data={data} options={LineChartOptions} />
+
 }
 
 
@@ -47,14 +47,14 @@ const LineChart = ({value}) => {
 const DoughnutChartOptions = {
     responsive: true,
     plugins: {
-        Legend: {display: false,},
-        title: {display: false,},
+        Legend: { display: false, },
+        title: { display: false, },
     },
     cutout: 120,
 }
 
 
-const DoughnutChart = ({value = [], labels = []}) => {
+const DoughnutChart = ({ value = [], labels = [] }) => {
 
     const data = {
         labels: labels,
@@ -62,17 +62,17 @@ const DoughnutChart = ({value = [], labels = []}) => {
             {
                 data: value,
                 backgroundColor: [purple, orange],
-                borderColor:[purple, orange],
-                hoverBackgroundColor:[lightPurple, orangeLight],
+                borderColor: [purple, orange],
+                hoverBackgroundColor: [lightPurple, orangeLight],
                 offset: 20
             }
         ]
     }
 
-  return (
-    <Doughnut style={{zIndex:10}} data={data} options={DoughnutChartOptions}/>
-  )
+    return (
+        <Doughnut style={{ zIndex: 10 }} data={data} options={DoughnutChartOptions} />
+    )
 }
 
 
-export {LineChart, DoughnutChart}
+export { LineChart, DoughnutChart }

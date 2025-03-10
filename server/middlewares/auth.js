@@ -37,6 +37,7 @@ const isAdmin = TryCatch(async (req, res, next) => {
 })
 
 
+
 const socketAuthentication = async (err, socket, next) => {
     try {
         if (err) return next(err)
@@ -52,7 +53,7 @@ const socketAuthentication = async (err, socket, next) => {
         socket.user = user
 
         return next()
-        
+
     } catch (error) {
         console.log(error);
         return next(new ErrorHandler("Please login to acess this route", 401))

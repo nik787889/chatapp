@@ -1,9 +1,11 @@
 // //
+import { useFetchData } from '6pp'
+import { Avatar, Skeleton } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import { Avatar } from '@mui/material'
 import AdminLayout from '../../components/layout/AdminLayout'
 import Table from '../../components/shared/Table'
-import { dashboardData } from '../../constants/sampleData'
+import { server } from '../../constants/config'
+import { useErrors } from '../../hooks/hook'
 import { transformImage } from '../../lib/features'
 
 
@@ -20,7 +22,7 @@ const columns = [
         headerClassName: "table-header",
         width: 150,
         renderCell: (params) => (
-            <Avatar alt={params.row.name} src={params.row.avatar}/>
+            <Avatar alt={params.row.name} src={params.row.avatar} />
         ),
     },
     {
@@ -51,15 +53,26 @@ const columns = [
 
 const UserManagement = () => {
 
+
+    const { loading, data, error } = useFetchData(`${server}/api/v1/admin/users`, "dashboard-users")
+    console.log(data);
+    console.log(error);
+
+    useErrors([{ isError: error, error: useErrors }])
+
     const [rows, setRows] = useState([])
 
-    useEffect(()=>{
-        setRows(dashboardData.users.map((i)=>({...i, id: i._id, avatar:transformImage(i.avatar, 50) })))
-    }, [])
+    useEffect(() => {
+        if (data) {
+            setRows(data.users.map((i) => ({ ...i, id: i._id, avatar: transformImage(i.avatar, 50) })))
+        }
+    }, [data])
 
     return (
         <AdminLayout>
-            <Table heading={"All Users"} columns={columns} rows={rows} />
+            {
+                loading ? (<Skeleton height={"100vh"} />) : (<Table heading={"All Users"} columns={columns} rows={rows} />)
+            }
         </AdminLayout>
     )
 }
