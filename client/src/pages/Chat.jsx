@@ -8,7 +8,7 @@ import FileMenu from '../components/dialogs/FileMenu'
 import { sampleMessage } from '../constants/sampleData'
 import MessageComp from '../components/shared/MessageComp'
 import { getSocket } from '../socket'
-import { ALERT, NEW_MESSAGE, START_TYPING, STOP_TYPING } from "../constants/events"
+import { ALERT, CHAT_JOINED, CHAT_LEAVED, NEW_MESSAGE, START_TYPING, STOP_TYPING } from "../constants/events"
 import { useChatDetailsQuery, useGetMessagesQuery } from '../redux/api/api'
 import { useErrors, useSocketEvents } from '../hooks/hook'
 import { useInfiniteScrollTop } from '6pp'
@@ -84,14 +84,21 @@ const Chat = ({ chatId, user }) => {
     setMessage("")
   }
 
+
+  console.log("userData", user);
+
   useEffect(() => {
+    socket.emit(CHAT_JOINED, { userId: user.data._id, members })
     dispatch(removeNewMessagesAlert(chatId))
+
     return () => {
       setMessage([])
       setMessages([])
       setOldMessages([])
       setPage(1)
+      socket.emit(CHAT_LEAVED, { userId: user.data._id, members })
     }
+
   }, [chatId])
 
   useEffect(() => {
